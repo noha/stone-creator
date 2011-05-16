@@ -90,7 +90,7 @@ do
 done
 
 # generate a system V init script that can be linked into /etc/init.d
-sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
+sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  $DIR/start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
 chmod +x $APPLICATION_DIR/$APPLICATION_NAME
 
 evalAndWriteTo $DIR/topazini $APPLICATION_DIR/.topazini
