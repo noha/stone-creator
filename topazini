@@ -1,0 +1,3 @@
+set gemstone $APPLICATION_NAME
+set user DataCurator
+set password swordfish

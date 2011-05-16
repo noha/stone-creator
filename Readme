@@ -1,0 +1,76 @@
+stone creator util
+==================
+
+The gemstone OO database can work with multiple stones/images. This little utility
+helps creating new stones from a standard gemstone installation (2.4.4.1 at the time
+of writing).
+
+create a new stone
+-------------------------
+
+1. If you installed gemstone the usual way you ended up with gemstone being installed in
+   /opt/gemstone/product
+   In this case you can skip this step. If you installed your gemstone somewhere else than
+   you need to edit the file gemstone.conf and enter the path of your installation
+
+2. Invoke the helper script to create a stone. If you want to install a new stone with the
+   name "saphir" in a directory "/opt/application/saphir" and you want a virgin gemstone
+   copied in place than you need to invoke
+
+   ./create-stone.sh -n saphir -d /opt/application/saphir -f
+
+To see all available commandline options just invoke
+  
+   ./create-stone.sh
+
+add the start/stop script to the system
+---------------------------------------
+
+A system V start/stop script is created in the stone directory that can start/stop this
+single stone instance. The script has the same name as the stone. The example choice 
+above "saphir" would have led to a script called "saphir" in the stone directory. 
+
+   ./saphir start|stop
+
+starts or stops the stone instance. You can link this script into the system start
+script directory
+
+   ln -s /opt/application/saphir/saphir /etc/init.d
+
+For debian based systems you can do 
+
+   update-rc.d saphir defaults
+
+This will add the script to the normal runlevels so that it will be started if the
+machine starts
+
+
+invoking a local script
+-----------------------
+
+For maintenance is often desirable to run a script against the stone. For this you use
+the run.sh script. Just create a smalltalk script with the form
+
+run
+<your smalltalk script>
+%
+
+You can run this script by doing 
+
+   sh run.sh myscript.st
+
+The run script is just a tiny wrapper around a topaz invocation. It reads an prepends 
+the login information to you script and pipes it to topaz. If you changed the password
+for the DataCurator user in gemstone then you need to change that in the login.st file
+
+using the environment provided
+------------------------------
+
+If you like to have all of the configured variables active in your current working
+shell (e.g. to invoke commands like 'gslist -v') you can simply type
+
+   . ./env
+
+when you are in the stone directory
+
+Questions, comments, feedback go to norbert@hartl.name
