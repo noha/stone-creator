@@ -84,7 +84,7 @@ fi
 evalAndWriteTo $DIR/env $APPLICATION_DIR/env
 source $APPLICATION_DIR/env
 
-for i in env system.conf gem.conf run.sh login.st scripts/* ;
+for i in env system.conf gem.conf runTopazScript.sh login.st scripts/* ;
 do
    evalAndWriteTo $DIR/$i $APPLICATION_DIR/$i
 done
