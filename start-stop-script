@@ -28,18 +28,11 @@ then
     exit 3 
 fi
 
-# also check user exists 
-if [ ! "`grep  "^$RUNASUSER:" /etc/passwd`" ] ; 
-then 
-    echo "USER DOESNT EXIST"
-    exit 3
-fi
-
 # source the seaside environment if it exists
 if [ ! -r $STONE_ENV ] ;
 then
     echo "Seaside ENV script doesnt exists at $STONE_ENV"
-    #exit 3
+    exit 3
 fi 
 
 . $STONE_ENV
