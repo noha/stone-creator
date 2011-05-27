@@ -15,7 +15,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 . $STONE_ENV
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
-DESC="$APPLICATION_NAME stone"
+DESC="stone"
 NAME=$APPLICATION_NAME
 SCRIPTNAME=/etc/init.d/$NAME
 RUNASUSER=$GEMSTONE_USER
@@ -61,7 +61,7 @@ case "$1" in
 	do_start
 	case "$?" in
 		0|1) [ "$VERBOSE" != no ] &&  exit 0 ;;
-		3) [ "$VERBOSE" != no ] && exit 1 ;;
+		3) [ "$VERBOSE" != no ] && echo "failed" && exit 1 ;;
 	esac
 	;;
   stop)
