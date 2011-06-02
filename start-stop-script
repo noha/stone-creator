@@ -15,41 +15,24 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 . $STONE_ENV
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
-DESC="$APPLICATION_NAME stone"
+DESC="stone"
 NAME=$APPLICATION_NAME
 SCRIPTNAME=/etc/init.d/$NAME
 RUNASUSER=$GEMSTONE_USER
 STONE_ENV=$APPLICATION_DIR/env
 
-# Read configuration variable file if it is present
-#[ -r /etc/default/$NAME ] && . /etc/default/$NAME
-
-# Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
-
-# Define LSB log_* functions.
-# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-. /lib/lsb/init-functions
-
 # exit if no user is set
 if [ ! $RUNASUSER ] ;  
 then 
-    log_failure_msg  "RUNASUSER NOT SET" 
+    echo  "RUNASUSER NOT SET" 
     exit 3 
-fi
-
-# also check user exists 
-if [ ! "`grep  "^$RUNASUSER:" /etc/passwd`" ] ; 
-then 
-    log_failure_msg "USER DOESNT EXIST"
-    exit 3
 fi
 
 # source the seaside environment if it exists
 if [ ! -r $STONE_ENV ] ;
 then
-    log_failure_msg "Seaside ENV script doesnt exists at $STONE_ENV"
-    #exit 3
+    echo "Seaside ENV script doesnt exists at $STONE_ENV"
+    exit 3
 fi 
 
 . $STONE_ENV
@@ -57,31 +40,36 @@ fi
 # Function that starts the daemon/service
 do_start()
 {
-  su -m $RUNASUSER -c '$GEMSTONE_INSTALLATION/bin/startstone -z $APPLICATION_DIR/system.conf -l $APPLICATION_LOG_DIR/log.txt $APPLICATION_NAME'
+  if [ ! -d "$GEMSTONE_LOGDIR/old" ];
+  then
+      mkdir "$GEMSTONE_LOGDIR/old" > /dev/null 2>&1
+  fi
+  mv $GEMSTONE_LOGDIR/* "$GEMSTONE_LOGDIR/old" > /dev/null 2>&1
+  su -m $RUNASUSER -c '$GEMSTONE_INSTALLATION/bin/startstone -z $APPLICATION_DIR/system.conf -l $APPLICATION_LOG_DIR/log.txt $APPLICATION_NAME' > $GEMSTONE_LOGDIR/startup.log 2>&1
 
 }
 
 # Function that stops the daemon/service
 do_stop()
 {
-   su -m $RUNASUSER -c '$GEMSTONE_INSTALLATION/bin/stopstone -i $APPLICATION_NAME DataCurator swordfish'
+   su -m $RUNASUSER -c '$GEMSTONE_INSTALLATION/bin/stopstone -i $APPLICATION_NAME DataCurator swordfish' > $GEMSTONE_LOGDIR/shutdown.log 2>&1
 }
 
 case "$1" in
   start)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	[ "$VERBOSE" != no ] && echo "Starting $DESC" "$NAME"
 	do_start
 	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		0|1) [ "$VERBOSE" != no ] &&  exit 0 ;;
+		3) [ "$VERBOSE" != no ] && echo "failed" && exit 1 ;;
 	esac
 	;;
   stop)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	[ "$VERBOSE" != no ] && echo "Stopping $DESC" "$NAME"
 	do_stop
 	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
-		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+		0|1) [ "$VERBOSE" != no ] && exit 0 ;;
+		2) [ "$VERBOSE" != no ] && exit 1 ;;
 	esac
 	;;
 
@@ -89,21 +77,21 @@ case "$1" in
 	# If the "reload" option is implemented then remove the
 	# 'force-reload' alias
 
-	log_daemon_msg "Restarting $DESC" "$NAME" "NO Reload for $NAME"
+	echo "Restarting $DESC" "$NAME" "NO Reload for $NAME"
 	do_stop
 	case "$?" in
 	  0|1)
 		do_start
 		case "$?" in
-			0) log_end_msg 0 ;;
-			1) log_end_msg 1 ;; # Old process is still running
-			*) log_end_msg 1 ;; # Failed to start
+			0) exit 0 ;;
+			1) exit 1 ;; # Old process is still running
+			*) exit 1 ;; # Failed to start
 		esac
 		;;
 
 	  *)
 	  	# Failed to stop
-		log_end_msg 1
+		exit 1
 		;;
 	esac
 	;;

@@ -49,7 +49,7 @@ invoking a local script
 -----------------------
 
 For maintenance is often desirable to run a script against the stone. For this you use
-the run.sh script. Just create a smalltalk script with the form
+the runTopazScript.sh script. Just create a smalltalk script with the form
 
 run
 <your smalltalk script>
@@ -57,9 +57,9 @@ run
 
 You can run this script by doing 
 
-   sh run.sh myscript.st
+   sh runTopazScript.sh myscript.st
 
-The run script is just a tiny wrapper around a topaz invocation. It reads an prepends 
+The runTopazScript script is just a tiny wrapper around a topaz invocation. It reads an prepends 
 the login information to you script and pipes it to topaz. If you changed the password
 for the DataCurator user in gemstone then you need to change that in the login.st file
 
