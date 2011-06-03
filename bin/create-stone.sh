@@ -29,7 +29,7 @@ function help {
 "
 }
 
-while getopts ":n:d:fu" opt; do
+while getopts ":n:d:u:fs:t:" opt; do
   case $opt in
     n)
       APPLICATION_NAME=$OPTARG
@@ -95,4 +95,8 @@ chmod +x $APPLICATION_DIR/$APPLICATION_NAME
 
 evalAndWriteTo $DIR/topazini $APPLICATION_DIR/.topazini
 
-chown -R $GEMSTONE_USER $APPLICATION_DIR
+# the script is supposed to be run by root or the same user as GEMSTONE_USER. 
+if [ ! "`whoami`" == "$GEMSTONE_USER" ];
+then
+   chown -R $GEMSTONE_USER $APPLICATION_DIR
+fi
