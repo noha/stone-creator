@@ -11,8 +11,11 @@ unset APPLICATION_DIR
 unset GEMSTONE_USER
 
 DIR=`dirname $0`
+LIB_DIR="$DIR"
+CONF_DIR="$DIR/../"
+SCRIPT_DIR="$DIR/../"
 
-source $DIR/functions.sh
+source $LIB_DIR/functions.sh
 
 function help {
    echo "usage: $0 -n [name] -d [directory] -f -u [runasuser] -s [spc size] -t [tempmem]"
@@ -70,7 +73,7 @@ createDirectory $APPLICATION_DATA_DIR
 APPLICATION_LOG_DIR=$APPLICATION_DIR/log
 createDirectory $APPLICATION_LOG_DIR
 
-load $DIR/gemstone.conf
+load $CONF_DIR/gemstone.conf
 
 if [ ! -z $FRESH_EXTENT ];
 then
@@ -81,19 +84,29 @@ then
    rm $APPLICATION_DATA_DIR/tranlog* 2>/dev/null
 fi
 
-evalAndWriteTo $DIR/env $APPLICATION_DIR/env
+evalAndWriteTo $CONF_DIR/env $APPLICATION_DIR/env
 source $APPLICATION_DIR/env
 
-for i in env system.conf gem.conf runTopazScript.sh login.st scripts/* ;
+for i in runTopazScript.sh;
 do
    evalAndWriteTo $DIR/$i $APPLICATION_DIR/$i
 done
 
+for i in env system.conf gem.conf;
+do
+   evalAndWriteTo $CONF_DIR/$i $APPLICATION_DIR/$i
+done
+
+for i in login.st scripts/* ;
+do
+   evalAndWriteTo $SCRIPT_DIR/$i $APPLICATION_DIR/$i
+done
+
 # generate a system V init script that can be linked into /etc/init.d
-sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  $DIR/start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
+sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  $SCRIPT_DIR/start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
 chmod +x $APPLICATION_DIR/$APPLICATION_NAME
 
-evalAndWriteTo $DIR/topazini $APPLICATION_DIR/.topazini
+evalAndWriteTo $CONF_DIR/topazini $APPLICATION_DIR/.topazini
 
 # the script is supposed to be run by root or the same user as GEMSTONE_USER. 
 if [ ! "`whoami`" == "$GEMSTONE_USER" ];
