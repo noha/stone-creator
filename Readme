@@ -57,7 +57,7 @@ run
 
 You can run this script by doing 
 
-   sh runTopazScript.sh myscript.st
+   sh bin/runTopazScript.sh myscript.st
 
 The runTopazScript script is just a tiny wrapper around a topaz invocation. It reads an prepends 
 the login information to you script and pipes it to topaz. If you changed the password
@@ -74,3 +74,25 @@ shell (e.g. to invoke commands like 'gslist -v') you can simply type
 when you are in the stone directory
 
 Questions, comments, feedback go to norbert@hartl.name
+
+maintaining tranlog files
+-------------------------
+
+Changes commited to gemstone are added to a transaction log. The files are by default in the
+same directory as the extent0.dbf file and have names like "tranlogXX.dbf" where XX is a
+number that increases whenever a new file is written.
+The extent has information about what tranlog file it needs in order to be able to reconstruct
+data after an unintentional shutdown. Over time new tranlog files are created and old one
+become obsolete. This wastes disk space without having any benfit.
+
+In this distribution a script is included that can be used to delete old tranlog files. It
+detects the last needed tranlog and deletes any older files that are obsolete. You can invoke
+it with
+
+   ./bin/delete-old-tranlogs.sh -d [directory] -g [path to gemstone] -r
+
+Just invoke the script without any arguments and you get the help printed. You can play with
+the script. Unless you specify the -r (remove) argument the script only shows what it would
+do. Nothing is done really. I added enough checks for a lot of conditions to be sure the 
+script does not do any unintentional delete of important data.  Although I took care you
+should be very careful when invoking scripts that delete necessary data.
