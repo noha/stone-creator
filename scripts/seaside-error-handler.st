@@ -1,6 +1,6 @@
-run
-WAAdmin applicationExceptionHandlingDefaults 
-        at: #exceptionHandler 
-        put: WAGemStoneProductionErrorHandler.
-%
+set user DataCurator pass swordfish gems taskforus
+display oops
 
+iferror where
+
+login

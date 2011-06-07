@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #####
+#
 # create a skeleton in a directory to run a stone in
 # 
 #####
@@ -11,8 +12,9 @@ unset APPLICATION_DIR
 unset GEMSTONE_USER
 
 DIR=`dirname $0`
+CREATOR_DIR="$DIR/../"
+ETC_DIR="$DIR/../etc/"
 LIB_DIR="$DIR"
-CONF_DIR="$DIR/../"
 SCRIPT_DIR="$DIR/../"
 
 source $LIB_DIR/functions.sh
@@ -58,22 +60,48 @@ while getopts ":n:d:u:fs:t:" opt; do
   esac
 done
 
+###
+# set defaults for parameters
+###
+
 GEMSTONE_USER=${GEMSTONE_USER:-gemstone}
 SHARED_PAGE_CACHE_SIZE=${SHARED_PAGE_CACHE_SIZE:-100000}
 TEMPORARY_OBJECT_MEMORY=${TEMPORARY_OBJECT_MEMORY:-50000}
 
+###
+# check mandatory parameters
+###
+
 mandatory_parameter APPLICATION_NAME
 mandatory_parameter APPLICATION_DIR
+
+###
+# define template variables
+###
+APPLICATION_BIN_DIR=$APPLICATION_DIR/bin
+APPLICATION_ETC_DIR=$APPLICATION_DIR/etc
+APPLICATION_DATA_DIR=$APPLICATION_DIR/data
+APPLICATION_LOG_DIR=$APPLICATION_DIR/log
+
+###
+# create application directory skeleton
+####
 createDirectory $APPLICATION_DIR
+createDirectory $APPLICATION_DATA_DIR
+createDirectory $APPLICATION_LOG_DIR
+createDirectory $APPLICATION_ETC_DIR
+createDirectory $APPLICATION_BIN_DIR
 createDirectory $APPLICATION_DIR/scripts
 
-APPLICATION_DATA_DIR=$APPLICATION_DIR/data
-createDirectory $APPLICATION_DATA_DIR
+###
+# load configuration about gemstone installation
+###
 
-APPLICATION_LOG_DIR=$APPLICATION_DIR/log
-createDirectory $APPLICATION_LOG_DIR
+load $CREATOR_DIR/gemstone.conf
 
-load $CONF_DIR/gemstone.conf
+###
+# if requested install a virgin seaside extent into the new application
+###
 
 if [ ! -z $FRESH_EXTENT ];
 then
@@ -84,31 +112,53 @@ then
    rm $APPLICATION_DATA_DIR/tranlog* 2>/dev/null
 fi
 
-evalAndWriteTo $CONF_DIR/env $APPLICATION_DIR/env
+###
+# generate target environment and load it. All further script copies will
+# replace the configuration templates with the real values
+###
+
+evalAndWriteTo $CREATOR_DIR/env $APPLICATION_DIR/env
 source $APPLICATION_DIR/env
+
+###
+# write executable scripts to bin/
+###
 
 for i in runTopazScript.sh;
 do
-   evalAndWriteTo $DIR/$i $APPLICATION_DIR/$i
+   evalAndWriteTo $DIR/$i $APPLICATION_BIN_DIR/$i
 done
 
-for i in env system.conf gem.conf;
+###
+# write config files to etc/
+###
+for i in system.conf gem.conf;
 do
-   evalAndWriteTo $CONF_DIR/$i $APPLICATION_DIR/$i
+   evalAndWriteTo $ETC_DIR/$i $APPLICATION_ETC_DIR/$i
 done
 
-for i in login.st scripts/* ;
+###
+# copy scripts to scripts/ 
+###
+
+for i in scripts/* ;
 do
-   evalAndWriteTo $SCRIPT_DIR/$i $APPLICATION_DIR/$i
+   evalAndWriteTo $CREATOR_DIR/$i $APPLICATION_DIR/$i
 done
 
+###
 # generate a system V init script that can be linked into /etc/init.d
+###
+
 sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  $SCRIPT_DIR/start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
 chmod +x $APPLICATION_DIR/$APPLICATION_NAME
 
-evalAndWriteTo $CONF_DIR/topazini $APPLICATION_DIR/.topazini
+evalAndWriteTo $ETC_DIR/topazini $APPLICATION_DIR/.topazini
 
+###
 # the script is supposed to be run by root or the same user as GEMSTONE_USER. 
+###
+
 if [ ! "`whoami`" == "$GEMSTONE_USER" ];
 then
    chown -R $GEMSTONE_USER $APPLICATION_DIR

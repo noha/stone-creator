@@ -7,4 +7,4 @@ then
    echo "no script name given"
 fi
 
-cat login.st \$1 | su -m $GEMSTONE_USER -c \"$GEMSTONE/bin/topaz -ql -T200000\"
+cat scripts/login.st \$1 | su -m $GEMSTONE_USER -c \"$GEMSTONE/bin/topaz -ql -T200000\"

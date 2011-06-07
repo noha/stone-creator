@@ -45,7 +45,7 @@ do_start()
       mkdir "$GEMSTONE_LOGDIR/old" > /dev/null 2>&1
   fi
   mv $GEMSTONE_LOGDIR/* "$GEMSTONE_LOGDIR/old" > /dev/null 2>&1
-  su -m $RUNASUSER -c '$GEMSTONE_INSTALLATION/bin/startstone -z $APPLICATION_DIR/system.conf -l $APPLICATION_LOG_DIR/log.txt $APPLICATION_NAME' > $GEMSTONE_LOGDIR/startup.log 2>&1
+  su -m $RUNASUSER -c '$GEMSTONE_INSTALLATION/bin/startstone -z $GEMSTONE_SYS_CONF -l $APPLICATION_LOG_DIR/log.txt $APPLICATION_NAME' > $GEMSTONE_LOGDIR/startup.log 2>&1
 
 }
 
