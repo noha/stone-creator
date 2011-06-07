@@ -15,7 +15,7 @@ DIR=`dirname $0`
 CREATOR_DIR="$DIR/../"
 ETC_DIR="$DIR/../etc/"
 LIB_DIR="$DIR"
-SCRIPT_DIR="$DIR/../"
+SCRIPT_DIR="$DIR/../scripts"
 
 source $LIB_DIR/functions.sh
 
@@ -143,14 +143,15 @@ done
 
 for i in scripts/* ;
 do
-   evalAndWriteTo $CREATOR_DIR/$i $APPLICATION_DIR/$i
+   SCRIPT=`basename $i`
+   evalAndWriteTo $SCRIPT_DIR/$SCRIPT $APPLICATION_DIR/scripts/$SCRIPT
 done
 
 ###
 # generate a system V init script that can be linked into /etc/init.d
 ###
 
-sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  $SCRIPT_DIR/start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
+sed -e "s#\$STONE_ENV#$APPLICATION_DIR/env#" <  $CREATOR_DIR/start-stop-script > $APPLICATION_DIR/$APPLICATION_NAME
 chmod +x $APPLICATION_DIR/$APPLICATION_NAME
 
 evalAndWriteTo $ETC_DIR/topazini $APPLICATION_DIR/.topazini
