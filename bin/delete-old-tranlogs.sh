@@ -1,9 +1,12 @@
 #!/bin/sh
 
-while getopts ":d:g:r" opt; do
+while getopts ":d:g:f:r" opt; do
   case $opt in
     d)
       DATA_DIR=$OPTARG
+      ;;
+    f)
+      FILE=$OPTARG
       ;;
     g)
       export GEMSTONE=$OPTARG
@@ -21,6 +24,7 @@ function help {
    echo "usage: $0 -d [directory] -g [gemstonedir] -r"
    echo "
    -d [directory]   data directory of stone (containing extent0.dbf)
+   -f [file]        file to take information about needed tranlog from (extent or backup)
    -g [gemstonedir] directory of gemstone installation (default: /opt/gemstone/product)
    -r               really remove tranlogs. Without this switch they are only shown
 "
@@ -33,9 +37,9 @@ then
 fi
 
 
-if [ ! -f "$DATA_DIR/extent0.dbf" ];
+if [ ! -f "$FILE" ];
 then
-   echo "did not found an extent0.dbf in $DATA_DIR"
+   echo "did not find $FILE"
    exit
 fi
 
@@ -52,7 +56,7 @@ then
    exit
 fi
 
-LAST_NEEDED_TRANLOG=`$COPYDBF_EXE -i $DATA_DIR/extent0.dbf 2>&1 | grep tranlog | cut -d ' ' -f 13`
+LAST_NEEDED_TRANLOG=`$COPYDBF_EXE -i $FILE 2>&1 | grep tranlog | cut -d ' ' -f 13`
 
 if [ "$LAST_NEEDED_TRANLOG" == "" ];
 then
