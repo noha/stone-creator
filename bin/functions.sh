@@ -35,3 +35,7 @@ function createDirectory {
 function evalAndWriteTo {
    eval "echo \"$(< $1 )\"" > $2
 }
+
+function evalStripAndWriteTo {
+   eval "echo \"$(< $1 )\"" | sed -e 's/ = /=/g' > $2
+}

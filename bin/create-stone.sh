@@ -134,7 +134,7 @@ done
 ###
 for i in system.conf gem.conf;
 do
-   evalAndWriteTo $ETC_DIR/$i $APPLICATION_ETC_DIR/$i
+   evalStripAndWriteTo $ETC_DIR/$i $APPLICATION_ETC_DIR/$i
 done
 
 ###
